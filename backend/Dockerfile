@@ -50,11 +50,11 @@ RUN CI=true pnpm prune --prod
 # ======================================
 FROM base AS prod
 
-# Install pnpm globally for runtime (Render needs this)
-RUN npm install -g pnpm
-
 # Set production environment
 ENV NODE_ENV=production
+
+# Enable pnpm for runtime (Corepack only enabled for root by default)
+RUN corepack enable pnpm
 
 # Create non-root user for security
 RUN addgroup -g 1001 -S nodejs \
