@@ -1,0 +1,125 @@
+generator client {
+  provider      = "prisma-client-js"
+  output        = "../generated/prisma"
+  previewFeatures = []
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id              String           @id @default(uuid())
+  email           String           @unique
+  password        String
+  name            String
+  role            Role
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  answers         Answer[]
+  directorSchools DirectorSchool[]
+  schoolsAdmin    School[]         @relation("AdminSchools")
+  teacherSchools  TeacherSchool[]
+}
+
+model School {
+  id        String           @id @default(uuid())
+  name      String
+  address   String?
+  adminId   String
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+  directors DirectorSchool[]
+  admin     User             @relation("AdminSchools", fields: [adminId], references: [id])
+  teachers  TeacherSchool[]
+}
+
+model DirectorSchool {
+  id        String   @id @default(uuid())
+  userId    String
+  schoolId  String
+  createdAt DateTime @default(now())
+  school    School   @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, schoolId])
+  @@index([userId])
+  @@index([schoolId])
+}
+
+model TeacherSchool {
+  id        String   @id @default(uuid())
+  userId    String
+  schoolId  String
+  createdAt DateTime @default(now())
+  school    School   @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, schoolId])
+  @@index([userId])
+  @@index([schoolId])
+}
+
+model Event {
+  id          String     @id @default(uuid())
+  name        String
+  description String?
+  isActive    Boolean    @default(true)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  answers     Answer[]
+  questions   Question[]
+}
+
+model Question {
+  id        String       @id @default(uuid())
+  text      String
+  type      QuestionType
+  order     Int
+  eventId   String
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+  answers   Answer[]
+  event     Event        @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@unique([eventId, order])
+  @@index([eventId])
+}
+
+model Answer {
+  id             String                @id @default(uuid())
+  userId         String
+  questionId     String
+  eventId        String
+  answerText     String?
+  selectedOption MultipleChoiceOption?
+  createdAt      DateTime              @default(now())
+  updatedAt      DateTime              @updatedAt
+  event          Event                 @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  question       Question              @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  user           User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, questionId, eventId])
+  @@index([userId, eventId])
+  @@index([eventId])
+}
+
+enum Role {
+  ADMIN
+  DIRECTOR
+  TEACHER
+}
+
+enum QuestionType {
+  FREE_TEXT
+  MULTIPLE_CHOICE
+}
+
+enum MultipleChoiceOption {
+  YES
+  NO
+  OPTION_30_70
+  OPTION_70_30
+  OPTION_50_50
+  I_DONT_KNOW
+}

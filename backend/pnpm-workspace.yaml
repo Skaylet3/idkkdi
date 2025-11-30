@@ -1,3 +1,7 @@
 onlyBuiltDependencies:
   - '@nestjs/core'
+  - '@prisma/engines'
+  - prisma
   - unrs-resolver
+
+storeDir: /home/skaylet/.local/share/pnpm/store/v10

@@ -21,9 +21,41 @@
   <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
   [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
 
-## Description
+## School Snap Backend
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+A NestJS + Prisma backend for the school assessment system described in `CLAUDE.md`. The stack strictly follows the four-layer clean architecture and uses PostgreSQL via Prisma.
+
+## Database Seeding
+
+The project includes a Prisma seed script that creates a default administrator account for immediate authentication. The seed is implemented in `prisma/seed.ts` and uses:
+
+- `dotenv` to load environment variables from `.env`
+- `bcrypt` for password hashing
+- Prisma Client with `upsert` for safe re-runs
+
+### Development workflow
+
+```bash
+pnpm install
+pnpm prisma migrate dev   # creates/updates schema locally
+pnpm prisma db seed       # runs the seed script
+```
+
+### Production / remote environments
+
+```bash
+pnpm prisma migrate deploy   # applies committed SQL migrations
+pnpm prisma db seed          # preferred: keeps Prisma CLI env handling
+# or, if you need to call it manually:
+pnpm prisma:seed             # runs ts-node prisma/seed.ts directly
+```
+
+The script can be re-run safely thanks to `upsert`. Default credentials:
+
+- Email: `admin@school.com`
+- Password: `Admin@123`
+
+Adjust values by editing `prisma/seed.ts` (remember to hash new passwords with `bcrypt.hash(plain, 10)`).
 
 ## Project setup
 
