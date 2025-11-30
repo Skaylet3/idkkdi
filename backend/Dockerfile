@@ -43,7 +43,7 @@ RUN pnpm prisma generate \
   && pnpm run build
 
 # Remove dev dependencies after build
-RUN pnpm prune --prod
+RUN CI=true pnpm prune --prod
 
 # ======================================
 # Production Stage
