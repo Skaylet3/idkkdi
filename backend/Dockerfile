@@ -45,6 +45,9 @@ RUN pnpm prisma generate \
 # Remove dev dependencies after build
 RUN CI=true pnpm prune --prod
 
+# Keep prisma CLI for runtime migrations
+RUN pnpm add -D prisma
+
 # ======================================
 # Production Stage
 # ======================================
