@@ -1,6 +1,5 @@
 # Dependencies (will be installed in container)
 node_modules
-pnpm-lock.yaml
 
 # Build artifacts (will be built in container)
 dist
