@@ -38,10 +38,9 @@ COPY . .
 ARG DATABASE_URL
 ENV DATABASE_URL=${DATABASE_URL}
 
-# Generate Prisma client, build application, and run migrations
+# Generate Prisma client and build application
 RUN pnpm prisma generate \
-  && pnpm run build \
-  && pnpm prisma migrate deploy
+  && pnpm run build
 
 # Remove dev dependencies after build
 RUN CI=true pnpm prune --prod
@@ -50,6 +49,9 @@ RUN CI=true pnpm prune --prod
 # Production Stage
 # ======================================
 FROM base AS prod
+
+# Install pnpm globally for runtime (Render needs this)
+RUN npm install -g pnpm
 
 # Set production environment
 ENV NODE_ENV=production
@@ -76,4 +78,6 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
   CMD node -e "require('http').get('http://localhost:3000/api/auth/me', (r) => {process.exit(r.statusCode === 401 ? 0 : 1)})"
 
 # Start application
+# 1. Run migrations (ensures database is up-to-date)
+# 2. Start NestJS server
 CMD ["sh", "-c", "pnpm prisma migrate deploy && node dist/main"]
