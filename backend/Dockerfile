@@ -34,6 +34,10 @@ FROM deps AS build
 # Copy source code
 COPY . .
 
+# Setting db url
+ARG DATABASE_URL
+ENV DATABASE_URL=${DATABASE_URL}
+
 # Generate Prisma client and build application
 RUN pnpm prisma generate \
   && pnpm run build
