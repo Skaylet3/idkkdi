@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
 import { IAnswerRepository } from '../../../domain/repositories/answer.repository.interface';
 import { Answer } from '../../../domain/entities/answer.entity';
-import { MultipleChoiceOption } from '@prisma/client';
+import { MultipleChoiceOption } from '../../../../generated/prisma';
 
 @Injectable()
 export class AnswerRepository implements IAnswerRepository {
