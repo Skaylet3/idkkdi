@@ -38,9 +38,10 @@ COPY . .
 ARG DATABASE_URL
 ENV DATABASE_URL=${DATABASE_URL}
 
-# Generate Prisma client and build application
+# Generate Prisma client, build application, and run migrations
 RUN pnpm prisma generate \
-  && pnpm run build
+  && pnpm run build \
+  && pnpm prisma migrate deploy
 
 # Remove dev dependencies after build
 RUN CI=true pnpm prune --prod
@@ -75,6 +76,4 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
   CMD node -e "require('http').get('http://localhost:3000/api/auth/me', (r) => {process.exit(r.statusCode === 401 ? 0 : 1)})"
 
 # Start application
-# 1. Run migrations (ensures database is up-to-date)
-# 2. Start NestJS server
-CMD ["sh", "-c", "pnpm prisma migrate deploy && node dist/main"]
+CMD ["node", "dist/main"]
