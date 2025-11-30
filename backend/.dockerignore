@@ -1,0 +1,58 @@
+# Dependencies (will be installed in container)
+node_modules
+pnpm-lock.yaml
+
+# Build artifacts (will be built in container)
+dist
+generated
+
+# Git files
+.git
+.gitignore
+.github
+
+# Docker files
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Testing files
+test
+coverage
+*.e2e-spec.ts
+jest.config.js
+jest-e2e.json
+
+# Logs and temporary files
+*.log
+*.log.*
+logs
+tmp
+temp
+
+# Development files
+.env.local
+.env.development
+.env.test
+*.md
+!prisma/README.md
+
+# IDE and editor files
+.vscode
+.idea
+*.swp
+*.swo
+*~
+.DS_Store
+
+# CI/CD
+.github
+.gitlab-ci.yml
+.travis.yml
+
+# Documentation
+README.md
+CHANGELOG.md
+LICENSE
+E2E_TEST_STATUS.md
+AUTH_ENDPOINTS.md

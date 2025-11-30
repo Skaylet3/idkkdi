@@ -46,6 +46,7 @@ export class AnswersService {
       throw new NotFoundException('Event not found');
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { event, questions } = eventWithQuestions;
 
     // 2. Check if user already submitted for this event

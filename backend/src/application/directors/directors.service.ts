@@ -35,8 +35,9 @@ export class DirectorsService {
     }
 
     // Check if email already exists
-    const existingDirector =
-      await this.directorRepository.findByEmail(dto.email);
+    const existingDirector = await this.directorRepository.findByEmail(
+      dto.email,
+    );
     if (existingDirector) {
       throw new ConflictException('Director with this email already exists');
     }
