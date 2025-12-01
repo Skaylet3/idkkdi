@@ -83,4 +83,4 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
 # Start application
 # 1. Run migrations (ensures database is up-to-date)
 # 2. Start NestJS server
-CMD ["sh", "-c", "pnpm prisma migrate deploy && node dist/src/main.js"]
+CMD ["sh", "-c", "pnpm prisma generate && pnpm prisma migrate deploy && node dist/src/main.js"]
