@@ -11,7 +11,7 @@ import {
   HttpStatus,
   ForbiddenException,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiParam, ApiBody } from '@nestjs/swagger';
 import { TeachersService } from '../../application/teachers/teachers.service';
 import { CreateTeacherDto } from '../../application/teachers/dtos/create-teacher.dto';
 import { UpdateTeacherDto } from '../../application/teachers/dtos/update-teacher.dto';
@@ -54,6 +54,7 @@ export class TeachersController {
   }
 
   @Get(':id')
+  @ApiParam({ name: 'id', description: 'Teacher UUID', type: String, format: 'uuid' })
   @ApiOperation({ summary: 'Get teacher by ID', description: 'Get detailed teacher information (Director only)' })
   @ApiResponse({ status: 200, description: 'Returns teacher details' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
@@ -64,6 +65,8 @@ export class TeachersController {
   }
 
   @Patch(':id')
+  @ApiParam({ name: 'id', description: 'Teacher UUID', type: String, format: 'uuid' })
+  @ApiBody({ type: UpdateTeacherDto })
   @ApiOperation({ summary: 'Update teacher', description: 'Update teacher information (Director only)' })
   @ApiResponse({ status: 200, description: 'Teacher updated successfully' })
   @ApiResponse({ status: 400, description: 'Invalid input data' })
@@ -76,6 +79,7 @@ export class TeachersController {
   }
 
   @Delete(':id')
+  @ApiParam({ name: 'id', description: 'Teacher UUID', type: String, format: 'uuid' })
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Delete teacher', description: 'Delete a teacher (Director only)' })
   @ApiResponse({ status: 204, description: 'Teacher deleted successfully' })

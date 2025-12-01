@@ -10,7 +10,7 @@ import {
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiParam, ApiBody } from '@nestjs/swagger';
 import { EventsService } from '../../application/events/events.service';
 import { CreateEventDto } from '../../application/events/dtos/create-event.dto';
 import { UpdateEventDto } from '../../application/events/dtos/update-event.dto';
@@ -45,6 +45,7 @@ export class EventsController {
   }
 
   @Get(':id')
+  @ApiParam({ name: 'id', description: 'Event UUID', type: String, format: 'uuid' })
   @ApiOperation({ summary: 'Get event with questions', description: 'Get event details including all questions (All authenticated users)' })
   @ApiResponse({ status: 200, description: 'Returns event with all questions' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
@@ -55,6 +56,8 @@ export class EventsController {
 
   @Patch(':id')
   @Roles('ADMIN')
+  @ApiParam({ name: 'id', description: 'Event UUID', type: String, format: 'uuid' })
+  @ApiBody({ type: UpdateEventDto })
   @ApiOperation({ summary: 'Update event', description: 'Update event information (Admin only)' })
   @ApiResponse({ status: 200, description: 'Event updated successfully' })
   @ApiResponse({ status: 400, description: 'Invalid input data' })
@@ -67,6 +70,7 @@ export class EventsController {
 
   @Delete(':id')
   @Roles('ADMIN')
+  @ApiParam({ name: 'id', description: 'Event UUID', type: String, format: 'uuid' })
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Delete event', description: 'Delete an event and all its questions (Admin only)' })
   @ApiResponse({ status: 204, description: 'Event deleted successfully' })

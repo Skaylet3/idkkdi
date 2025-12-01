@@ -10,7 +10,7 @@ import {
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiParam, ApiBody } from '@nestjs/swagger';
 import { SchoolsService } from '../../application/schools/schools.service';
 import { CreateSchoolDto } from '../../application/schools/dtos/create-school.dto';
 import { UpdateSchoolDto } from '../../application/schools/dtos/update-school.dto';
@@ -48,6 +48,7 @@ export class SchoolsController {
   }
 
   @Get(':id')
+  @ApiParam({ name: 'id', description: 'School UUID', type: String, format: 'uuid' })
   @ApiOperation({ summary: 'Get school by ID', description: 'Get detailed school information (Admin only)' })
   @ApiResponse({ status: 200, description: 'Returns school details' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
@@ -58,6 +59,8 @@ export class SchoolsController {
   }
 
   @Patch(':id')
+  @ApiParam({ name: 'id', description: 'School UUID', type: String, format: 'uuid' })
+  @ApiBody({ type: UpdateSchoolDto })
   @ApiOperation({ summary: 'Update school', description: 'Update school information (Admin only)' })
   @ApiResponse({ status: 200, description: 'School updated successfully' })
   @ApiResponse({ status: 400, description: 'Invalid input data' })
@@ -69,6 +72,7 @@ export class SchoolsController {
   }
 
   @Delete(':id')
+  @ApiParam({ name: 'id', description: 'School UUID', type: String, format: 'uuid' })
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Delete school', description: 'Delete a school (Admin only)' })
   @ApiResponse({ status: 204, description: 'School deleted successfully' })

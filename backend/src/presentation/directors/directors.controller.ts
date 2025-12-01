@@ -10,7 +10,7 @@ import {
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiParam, ApiBody } from '@nestjs/swagger';
 import { DirectorsService } from '../../application/directors/directors.service';
 import { CreateDirectorDto } from '../../application/directors/dtos/create-director.dto';
 import { UpdateDirectorDto } from '../../application/directors/dtos/update-director.dto';
@@ -48,6 +48,7 @@ export class DirectorsController {
   }
 
   @Get(':id')
+  @ApiParam({ name: 'id', description: 'Director UUID', type: String, format: 'uuid' })
   @ApiOperation({ summary: 'Get director by ID', description: 'Get detailed director information (Admin only)' })
   @ApiResponse({ status: 200, description: 'Returns director details' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
@@ -58,6 +59,8 @@ export class DirectorsController {
   }
 
   @Patch(':id')
+  @ApiParam({ name: 'id', description: 'Director UUID', type: String, format: 'uuid' })
+  @ApiBody({ type: UpdateDirectorDto })
   @ApiOperation({ summary: 'Update director', description: 'Update director information (Admin only)' })
   @ApiResponse({ status: 200, description: 'Director updated successfully' })
   @ApiResponse({ status: 400, description: 'Invalid input data' })
@@ -70,6 +73,7 @@ export class DirectorsController {
   }
 
   @Delete(':id')
+  @ApiParam({ name: 'id', description: 'Director UUID', type: String, format: 'uuid' })
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Delete director', description: 'Delete a director (Admin only)' })
   @ApiResponse({ status: 204, description: 'Director deleted successfully' })

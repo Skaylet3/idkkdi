@@ -8,7 +8,7 @@ import {
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiParam, ApiBody } from '@nestjs/swagger';
 import { AnswersService } from '../../application/answers/answers.service';
 import { SubmitAnswersDto } from '../../application/answers/dtos/submit-answers.dto';
 import { JwtAuthGuard } from '../../infrastructure/auth/jwt-auth.guard';
@@ -28,6 +28,7 @@ export class AnswersController {
   @Post('submit')
   @Roles('TEACHER')
   @HttpCode(HttpStatus.CREATED)
+  @ApiBody({ type: SubmitAnswersDto })
   @ApiOperation({ summary: 'Submit answers', description: 'Teacher submits bulk answers for an event (Teacher only, one submission per event)' })
   @ApiResponse({ status: 201, description: 'Answers submitted successfully' })
   @ApiResponse({ status: 400, description: 'Invalid input data or missing required answers' })
@@ -56,6 +57,7 @@ export class AnswersController {
   // Teacher views their answers for a specific event
   @Get('my-answers/:eventId')
   @Roles('TEACHER')
+  @ApiParam({ name: 'eventId', description: 'Event UUID', type: String, format: 'uuid' })
   @ApiOperation({ summary: 'Get my answers for event', description: 'Teacher views their submitted answers for a specific event (Teacher only)' })
   @ApiResponse({ status: 200, description: 'Returns teacher\'s answers for the specified event' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
@@ -71,6 +73,7 @@ export class AnswersController {
   // Director views results for their school for a specific event
   @Get('school-results/:eventId')
   @Roles('DIRECTOR')
+  @ApiParam({ name: 'eventId', description: 'Event UUID', type: String, format: 'uuid' })
   @ApiOperation({ summary: 'Get school results', description: 'Director views all teachers\' results for their school for a specific event (Director only)' })
   @ApiResponse({ status: 200, description: 'Returns all teachers\' answers from director\'s school for the event' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
@@ -86,6 +89,7 @@ export class AnswersController {
   // Director views complete history for a specific teacher in their school
   @Get('teacher-history/:teacherId')
   @Roles('DIRECTOR')
+  @ApiParam({ name: 'teacherId', description: 'Teacher UUID', type: String, format: 'uuid' })
   @ApiOperation({ summary: 'Get teacher history', description: 'Director views complete answer history for a specific teacher in their school (Director only)' })
   @ApiResponse({ status: 200, description: 'Returns complete answer history for the specified teacher' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
