@@ -1,0 +1,99 @@
+@import "tailwindcss";
+
+/* ============================================
+   CUSTOM DESIGN TOKENS - Add your tokens here
+   ============================================ */
+
+@theme {
+  /* Colors - Use any format: hex, rgb, hsl, oklch
+     Tailwind v4 automatically creates utilities like:
+     bg-{token-name}, text-{token-name}, border-{token-name} */
+
+  /* Example: --color-brand: #3b82f6; → creates bg-brand, text-brand, etc. */
+
+  --color-primary: oklch(76.8% 0.233 130.85);
+  --color-primary-50: oklch(98.6% 0.031 120.757); 
+  --color-primary-100: oklch(96.7% 0.067 122.328); 
+  --color-primary-200: oklch(93.8% 0.127 124.321); 
+  --color-primary-300: oklch(89.7% 0.196 126.665); 
+  --color-primary-400: oklch(84.1% 0.238 128.85); 
+  --color-primary-500: oklch(76.8% 0.233 130.85); 
+  --color-primary-600: oklch(64.8% 0.2 131.684); 
+  --color-primary-700: oklch(53.2% 0.157 131.589); 
+  --color-primary-800: oklch(45.3% 0.124 130.933); 
+  --color-primary-900: oklch(40.5% 0.101 131.063); 
+  --color-primary-950: oklch(27.4% 0.072 132.109);
+
+  --color-territorial: oklch(97% 0.001 106.424);
+
+  --color-neutral-50: oklch(98.5% 0 0)
+  --color-neutral-100: oklch(97% 0 0)
+  --color-neutral-200: oklch(92.2% 0 0)
+  --color-neutral-300: oklch(87% 0 0)
+  --color-neutral-400: oklch(70.8% 0 0)
+  --color-neutral-500: oklch(55.6% 0 0)
+  --color-neutral-600: oklch(43.9% 0 0)
+  --color-neutral-700: oklch(37.1% 0 0)
+  --color-neutral-800: oklch(26.9% 0 0)
+  --color-neutral-900: oklch(20.5% 0 0)
+  --color-neutral-950: oklch(14.5% 0 0)
+
+  --color-red-50: oklch(97.1% 0.013 17.38);
+  --color-red-100: oklch(94.5% 0.027 17.38);
+  --color-red-200: oklch(90.1% 0.055 17.38);
+  --color-red-300: oklch(83.9% 0.109 17.567);
+  --color-red-400: oklch(72.5% 0.194 22.216);
+  --color-red-500: oklch(62.8% 0.257 27.325);
+  --color-red-600: oklch(55.5% 0.256 27.325);
+  --color-red-700: oklch(47.4% 0.213 25.331);
+  --color-red-800: oklch(42.1% 0.177 27.325);
+  --color-red-900: oklch(38.7% 0.143 25.731);
+  --color-red-950: oklch(25.1% 0.088 27.325);
+
+  --color-green-50: oklch(98.5% 0.014 155.826);
+  --color-green-100: oklch(96.3% 0.037 156.743);
+  --color-green-200: oklch(92.8% 0.074 155.995);
+  --color-green-300: oklch(87.3% 0.137 154.848);
+  --color-green-400: oklch(79.3% 0.189 152.853);
+  --color-green-500: oklch(71.8% 0.191 149.579);
+  --color-green-600: oklch(63.7% 0.172 150.355);
+  --color-green-700: oklch(54.5% 0.141 151.711);
+  --color-green-800: oklch(47.3% 0.11 151.552);
+  --color-green-900: oklch(41.6% 0.089 152.53);
+  --color-green-950: oklch(28.1% 0.063 154.449);
+
+
+
+  /* Spacing - Creates utilities like p-{name}, m-{name}, gap-{name} */
+  /* Example: --spacing-section: 4rem; → creates p-section, m-section, etc. */
+
+  /* Border Radius - Creates utilities like rounded-{name} */
+  /* Example: --radius-card: 0.5rem; → creates rounded-card */
+
+  /* Fonts - Creates utilities like font-{name} */
+  /* Example: --font-heading: 'Inter', sans-serif; → creates font-heading */
+
+  /* Shadows - Creates utilities like shadow-{name} */
+  /* Example: --shadow-soft: 0 2px 8px rgba(0, 0, 0, 0.1); → creates shadow-soft */
+}
+
+/* ============================================
+   BASE STYLES - Add your global styles here
+   ============================================ */
+
+@layer base {
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: system-ui, -apple-system, sans-serif;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+/* Add your custom global styles below */
