@@ -15,7 +15,7 @@ export class EventsService {
     private readonly eventRepository: IEventRepository,
   ) {}
 
-  async create(dto: CreateEventDto): Promise<Event> {
+  async create(dto: CreateEventDto): Promise<{ event: Event; questions: Question[] }> {
     // Create event entity
     const event = Event.create({
       name: dto.name,

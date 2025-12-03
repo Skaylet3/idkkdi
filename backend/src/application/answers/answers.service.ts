@@ -122,6 +122,10 @@ export class AnswersService {
     );
   }
 
+  async getMyParticipatedEvents(teacher: JwtPayload): Promise<any[]> {
+    return this.answerRepository.findParticipatedEventsByUserId(teacher.userId);
+  }
+
   async getSchoolResults(
     director: JwtPayload,
     eventId: string,

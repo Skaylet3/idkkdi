@@ -26,4 +26,7 @@ export interface IAnswerRepository {
 
   // Get complete history for a specific user with all details
   findByUserIdWithDetails(userId: string): Promise<any[]>;
+
+  // Get list of events a user has participated in with counts
+  findParticipatedEventsByUserId(userId: string): Promise<any[]>;
 }

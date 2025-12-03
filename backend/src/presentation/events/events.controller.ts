@@ -33,7 +33,12 @@ export class EventsController {
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 403, description: 'Forbidden - requires ADMIN role' })
   async create(@Body() dto: CreateEventDto) {
-    return this.eventsService.create(dto);
+    const result = await this.eventsService.create(dto);
+    // Flatten the response to have event properties at top level with questions array
+    return {
+      ...result.event.toJSON(),
+      questions: result.questions.map(q => q.toJSON()),
+    };
   }
 
   @Get()

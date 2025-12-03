@@ -177,4 +177,55 @@ export class AnswerRepository implements IAnswerRepository {
       submittedAt: answer.createdAt,
     }));
   }
+
+  async findParticipatedEventsByUserId(userId: string): Promise<any[]> {
+    const answers = await this.prisma.answer.findMany({
+      where: { userId },
+      select: {
+        eventId: true,
+        createdAt: true,
+        event: {
+          select: {
+            id: true,
+            name: true,
+            description: true,
+            isActive: true,
+            _count: {
+              select: { questions: true },
+            },
+          },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    // Group by eventId and aggregate
+    const eventMap = new Map();
+
+    answers.forEach((answer) => {
+      if (!eventMap.has(answer.eventId)) {
+        eventMap.set(answer.eventId, {
+          eventId: answer.event.id,
+          eventName: answer.event.name,
+          eventDescription: answer.event.description,
+          isActive: answer.event.isActive,
+          answeredQuestionsCount: 1,
+          totalQuestionsCount: answer.event._count.questions,
+          participatedAt: answer.createdAt,
+        });
+      } else {
+        const existing = eventMap.get(answer.eventId);
+        existing.answeredQuestionsCount++;
+        // Keep the earliest participation date
+        if (answer.createdAt < existing.participatedAt) {
+          existing.participatedAt = answer.createdAt;
+        }
+      }
+    });
+
+    // Convert Map to array and sort by participatedAt (newest first)
+    return Array.from(eventMap.values()).sort(
+      (a, b) => b.participatedAt.getTime() - a.participatedAt.getTime(),
+    );
+  }
 }

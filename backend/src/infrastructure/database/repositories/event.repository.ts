@@ -8,7 +8,7 @@ import { Question } from '../../../domain/entities/question.entity';
 export class EventRepository implements IEventRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(event: Event, questions: Question[]): Promise<Event> {
+  async create(event: Event, questions: Question[]): Promise<{ event: Event; questions: Question[] }> {
     const eventData = event.toJSON();
 
     // Create event with nested questions in transaction
@@ -30,12 +30,23 @@ export class EventRepository implements IEventRepository {
           }),
         },
       },
+      include: {
+        questions: {
+          orderBy: { order: 'asc' },
+        },
+      },
     });
 
-    return Event.fromPersistence({
+    const createdEvent = Event.fromPersistence({
       ...created,
       description: created.description ?? undefined,
     });
+
+    const createdQuestions = created.questions.map((q) =>
+      Question.fromPersistence(q as any),
+    );
+
+    return { event: createdEvent, questions: createdQuestions };
   }
 
   async findById(id: string): Promise<Event | null> {

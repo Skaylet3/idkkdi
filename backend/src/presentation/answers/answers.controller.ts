@@ -11,6 +11,7 @@ import {
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiParam, ApiBody } from '@nestjs/swagger';
 import { AnswersService } from '../../application/answers/answers.service';
 import { SubmitAnswersDto } from '../../application/answers/dtos/submit-answers.dto';
+import { ParticipatedEventDto } from '../../application/answers/dtos/participated-event.dto';
 import { JwtAuthGuard } from '../../infrastructure/auth/jwt-auth.guard';
 import { RolesGuard } from '../../infrastructure/auth/roles.guard';
 import { Roles } from '../decorators/roles.decorator';
@@ -68,6 +69,24 @@ export class AnswersController {
     @Param('eventId') eventId: string,
   ) {
     return this.answersService.getMyAnswersForEvent(user, eventId);
+  }
+
+  // Teacher views list of events they participated in
+  @Get('my-participated-events')
+  @Roles('TEACHER')
+  @ApiOperation({
+    summary: 'Get my participated events',
+    description: 'Teacher views list of all events they have participated in with answer counts (Teacher only)'
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Returns list of participated events with answer statistics',
+    type: [ParticipatedEventDto],
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden - requires TEACHER role' })
+  async getMyParticipatedEvents(@CurrentUser() user: JwtPayload) {
+    return this.answersService.getMyParticipatedEvents(user);
   }
 
   // Director views results for their school for a specific event

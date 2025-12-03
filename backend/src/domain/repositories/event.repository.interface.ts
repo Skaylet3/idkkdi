@@ -2,7 +2,7 @@ import { Event } from '../entities/event.entity';
 import { Question } from '../entities/question.entity';
 
 export interface IEventRepository {
-  create(event: Event, questions: Question[]): Promise<Event>;
+  create(event: Event, questions: Question[]): Promise<{ event: Event; questions: Question[] }>;
   findById(id: string): Promise<Event | null>;
   findByIdWithQuestions(
     id: string,

@@ -79,7 +79,7 @@ describe('Answers (e2e)', () => {
         email: 'director@test.com',
         password: 'Director123!',
         name: 'Test Director',
-        schoolIds: [schoolId],
+        schoolId: schoolId,
       });
 
     const directorLogin = await request(app.getHttpServer())
@@ -99,7 +99,6 @@ describe('Answers (e2e)', () => {
         email: 'teacher@test.com',
         password: 'Teacher123!',
         name: 'Test Teacher',
-        schoolIds: [schoolId],
       });
 
     teacherId = teacherResponse.body.id;
@@ -121,7 +120,6 @@ describe('Answers (e2e)', () => {
         email: 'teacher2@test.com',
         password: 'Teacher123!',
         name: 'Test Teacher 2',
-        schoolIds: [schoolId],
       });
 
     teacher2Id = teacher2Response.body.id;
@@ -498,6 +496,131 @@ describe('Answers (e2e)', () => {
     it('should fail as admin (not director)', async () => {
       await request(app.getHttpServer())
         .get(`/api/answers/teacher-history/${teacherId}`)
+        .set('Authorization', `Bearer ${adminToken}`)
+        .expect(403);
+    });
+  });
+
+  describe('/api/answers/my-participated-events (GET)', () => {
+    it('should get participated events as teacher', async () => {
+      const response = await request(app.getHttpServer())
+        .get('/api/answers/my-participated-events')
+        .set('Authorization', `Bearer ${teacherToken}`)
+        .expect(200);
+
+      expect(Array.isArray(response.body)).toBe(true);
+      expect(response.body.length).toBeGreaterThan(0);
+
+      const participatedEvent = response.body[0];
+      expect(participatedEvent).toHaveProperty('eventId');
+      expect(participatedEvent).toHaveProperty('eventName');
+      expect(participatedEvent).toHaveProperty('eventDescription');
+      expect(participatedEvent).toHaveProperty('isActive');
+      expect(participatedEvent).toHaveProperty('answeredQuestionsCount');
+      expect(participatedEvent).toHaveProperty('totalQuestionsCount');
+      expect(participatedEvent).toHaveProperty('participatedAt');
+
+      expect(participatedEvent.eventId).toBe(eventId);
+      expect(participatedEvent.eventName).toBe('Test Event');
+      expect(participatedEvent.answeredQuestionsCount).toBe(2);
+      expect(participatedEvent.totalQuestionsCount).toBe(2);
+    });
+
+    it('should return empty array for teacher with no participation', async () => {
+      // Create new teacher who hasn't participated
+      await request(app.getHttpServer())
+        .post('/api/teachers')
+        .set('Authorization', `Bearer ${directorToken}`)
+        .send({
+          email: 'newteacher@test.com',
+          password: 'Teacher123!',
+          name: 'New Teacher',
+        });
+
+      const newTeacherLogin = await request(app.getHttpServer())
+        .post('/api/auth/login')
+        .send({
+          email: 'newteacher@test.com',
+          password: 'Teacher123!',
+        });
+
+      const newTeacherToken = newTeacherLogin.body.access_token;
+
+      const response = await request(app.getHttpServer())
+        .get('/api/answers/my-participated-events')
+        .set('Authorization', `Bearer ${newTeacherToken}`)
+        .expect(200);
+
+      expect(Array.isArray(response.body)).toBe(true);
+      expect(response.body.length).toBe(0);
+    });
+
+    it('should show multiple events if teacher participated in multiple', async () => {
+      // Create second event
+      const event2Response = await request(app.getHttpServer())
+        .post('/api/events')
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({
+          name: 'Second Test Event',
+          description: 'Another test event',
+          isActive: true,
+          questions: [
+            {
+              text: 'Question 1',
+              type: 'FREE_TEXT',
+              order: 1,
+            },
+          ],
+        });
+
+      const event2Id = event2Response.body.id;
+      const event2QuestionIds = event2Response.body.questions.map((q: any) => q.id);
+
+      // Teacher submits answers for second event
+      await request(app.getHttpServer())
+        .post('/api/answers/submit')
+        .set('Authorization', `Bearer ${teacherToken}`)
+        .send({
+          eventId: event2Id,
+          answers: [
+            {
+              questionId: event2QuestionIds[0],
+              answerText: 'Answer to question 1',
+            },
+          ],
+        })
+        .expect(201);
+
+      // Get participated events
+      const response = await request(app.getHttpServer())
+        .get('/api/answers/my-participated-events')
+        .set('Authorization', `Bearer ${teacherToken}`)
+        .expect(200);
+
+      expect(Array.isArray(response.body)).toBe(true);
+      expect(response.body.length).toBe(2);
+
+      // Should be sorted by most recent first
+      expect(response.body[0].eventId).toBe(event2Id);
+      expect(response.body[1].eventId).toBe(eventId);
+    });
+
+    it('should fail without authentication', async () => {
+      await request(app.getHttpServer())
+        .get('/api/answers/my-participated-events')
+        .expect(401);
+    });
+
+    it('should fail as director (not teacher)', async () => {
+      await request(app.getHttpServer())
+        .get('/api/answers/my-participated-events')
+        .set('Authorization', `Bearer ${directorToken}`)
+        .expect(403);
+    });
+
+    it('should fail as admin (not teacher)', async () => {
+      await request(app.getHttpServer())
+        .get('/api/answers/my-participated-events')
         .set('Authorization', `Bearer ${adminToken}`)
         .expect(403);
     });
