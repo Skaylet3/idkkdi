@@ -1,37 +1,37 @@
-import { createBrowserRouter } from 'react-router-dom'
-import { HomePage } from '@/pages/home'
-import { DashboardPage } from '@/pages/dashboard'
-import { ProfilePage } from '@/pages/profile'
-import { SettingsPage } from '@/pages/settings'
-import { ErrorPage } from '@/pages/error'
+import { AdminPanel } from '@/pages/admin';
+import { DirectorPanel } from '@/pages/director';
+import { ErrorPage } from '@/pages/error';
+import { LoginPage } from '@/pages/login';
+import { TeacherPanel } from '@/pages/teacher';
+import { createBrowserRouter } from 'react-router-dom';
 
 /**
  * Application router configuration
  * Uses React Router v7 with createBrowserRouter for best practices
  */
 export const router = createBrowserRouter([
-  {
-    path: '/',
-    element: <HomePage />,
-    errorElement: <ErrorPage />,
-  },
-  {
-    path: '/dashboard',
-    element: <DashboardPage />,
-    errorElement: <ErrorPage />,
-  },
-  {
-    path: '/profile',
-    element: <ProfilePage />,
-    errorElement: <ErrorPage />,
-  },
-  {
-    path: '/settings',
-    element: <SettingsPage />,
-    errorElement: <ErrorPage />,
-  },
-  {
-    path: '*',
-    element: <ErrorPage />,
-  },
-])
+	{
+		path: '/admin',
+		element: <AdminPanel />,
+		errorElement: <ErrorPage />,
+	},
+	{
+		path: '/',
+		element: <LoginPage />,
+		errorElement: <ErrorPage />,
+	},
+	{
+		path: '/me/director',
+		element: <DirectorPanel />,
+		errorElement: <ErrorPage />,
+	},
+	{
+		path: '/me/teacher',
+		element: <TeacherPanel />,
+		errorElement: <ErrorPage />,
+	},
+	{
+		path: '*',
+		element: <ErrorPage />,
+	},
+]);

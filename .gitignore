@@ -1,0 +1,10 @@
+# MCP configuration (contains secrets)
+.mcp.json
+
+# IDE
+.idea/
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
