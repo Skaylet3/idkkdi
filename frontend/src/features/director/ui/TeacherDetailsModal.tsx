@@ -1,19 +1,18 @@
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
-  DialogTitle,
   Button,
   Avatar,
   AvatarImage,
   AvatarFallback,
 } from '@/shared/ui'
-import { Pencil, Trash2 } from 'lucide-react'
+import { Pencil, Trash2, ArrowLeft } from 'lucide-react'
 import type { Teacher } from '@/entities/teacher'
 
 interface TeacherDetailsModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
+  onBack: () => void
   teacher: Teacher | null
   onUpdate: () => void
   onDelete: () => void
@@ -22,6 +21,7 @@ interface TeacherDetailsModalProps {
 export function TeacherDetailsModal({
   open,
   onOpenChange,
+  onBack,
   teacher,
   onUpdate,
   onDelete,
@@ -35,14 +35,34 @@ export function TeacherDetailsModal({
     .toUpperCase()
     .slice(0, 2)
 
+  const handleBack = () => {
+    onOpenChange(false)
+    onBack()
+  }
+
+  const handleOpenChange = (newOpen: boolean) => {
+    if (!newOpen) {
+      handleBack()
+    } else {
+      onOpenChange(newOpen)
+    }
+  }
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="w-[calc(100%-2rem)] sm:max-w-md rounded-2xl">
-        <DialogHeader>
-          <DialogTitle className="text-xl font-semibold text-gray-800">
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={handleBack}
+            className="p-1 rounded-full hover:bg-gray-100 transition-colors"
+          >
+            <ArrowLeft className="w-5 h-5 text-gray-600" />
+          </button>
+          <h2 className="text-xl font-semibold text-gray-800">
             Teacher Details
-          </DialogTitle>
-        </DialogHeader>
+          </h2>
+        </div>
 
         <div className="flex items-center gap-4">
           <Avatar className="h-16 w-16">

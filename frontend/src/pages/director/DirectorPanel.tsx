@@ -176,6 +176,7 @@ export function DirectorPanel() {
   // Teacher list handlers
   const handleTeacherClick = (teacher: Teacher) => {
     setSelectedTeacher(teacher)
+    setTeachersListOpen(false)
     setTeacherDetailsOpen(true)
   }
 
@@ -291,10 +292,8 @@ export function DirectorPanel() {
       {/* Level 2 Modals */}
       <TeacherDetailsModal
         open={teacherDetailsOpen}
-        onOpenChange={(open) => {
-          setTeacherDetailsOpen(open)
-          if (!open) setSelectedTeacher(null)
-        }}
+        onOpenChange={setTeacherDetailsOpen}
+        onBack={() => setTeachersListOpen(true)}
         teacher={selectedTeacher}
         onUpdate={handleUpdateTeacherClick}
         onDelete={handleDeleteTeacherClick}
