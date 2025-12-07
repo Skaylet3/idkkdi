@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Header } from '@/widgets/header'
 import { AdminSchoolList } from '@/widgets/admin-school-list'
-import type { AdminSchool } from '@/entities/admin-school'
+import { toAdminSchool, type AdminSchool } from '@/entities/admin-school'
 import {
   CreateSchoolModal,
   CreateEventModal,
@@ -14,21 +14,29 @@ import {
   type DeleteSchoolData,
   type CreateDirectorData,
 } from '@/features/admin'
-
-const mockSchools: AdminSchool[] = [
-  {
-    id: '1',
-    name: 'Lincoln Elementary School',
-    address: '123 Main Street, Springfield',
-  },
-  {
-    id: '2',
-    name: 'Washington High School',
-    address: '456 Oak Avenue, Springfield',
-  },
-]
+import {
+  useSchools,
+  useCreateSchool,
+  useUpdateSchool,
+  useDeleteSchool,
+  useCreateDirector,
+  useCreateEvent,
+} from '@/shared/api'
 
 export function AdminPanel() {
+  // Fetch schools from API
+  const { data: schoolsData, isLoading: isLoadingSchools } = useSchools()
+
+  // Mutations
+  const createSchoolMutation = useCreateSchool()
+  const updateSchoolMutation = useUpdateSchool()
+  const deleteSchoolMutation = useDeleteSchool()
+  const createDirectorMutation = useCreateDirector()
+  const createEventMutation = useCreateEvent()
+
+  // Transform API data to UI format
+  const schools: AdminSchool[] = schoolsData?.map(toAdminSchool) ?? []
+
   // Modal states
   const [createSchoolOpen, setCreateSchoolOpen] = useState(false)
   const [createEventOpen, setCreateEventOpen] = useState(false)
@@ -39,8 +47,12 @@ export function AdminPanel() {
   // Selected school for update/delete/add director
   const [selectedSchool, setSelectedSchool] = useState<AdminSchool | null>(null)
 
-  // Loading states (for future API integration)
-  const [isLoading, setIsLoading] = useState(false)
+  // Combined loading state
+  const isLoading = createSchoolMutation.isPending ||
+    updateSchoolMutation.isPending ||
+    deleteSchoolMutation.isPending ||
+    createDirectorMutation.isPending ||
+    createEventMutation.isPending
 
   // Handlers to open modals
   const handleAddSchool = () => {
@@ -66,62 +78,75 @@ export function AdminPanel() {
     setAddDirectorOpen(true)
   }
 
-  // Form submission handlers (ready for API hooks)
+  // Form submission handlers
   const handleCreateSchoolSubmit = async (data: CreateSchoolData) => {
-    setIsLoading(true)
     try {
-      // TODO: Call API hook here
-      console.log('Create school:', data)
+      await createSchoolMutation.mutateAsync({
+        name: data.name,
+        address: data.address,
+      })
       setCreateSchoolOpen(false)
-    } finally {
-      setIsLoading(false)
+    } catch (error) {
+      console.error('Failed to create school:', error)
     }
   }
 
   const handleCreateEventSubmit = async (data: CreateEventData) => {
-    setIsLoading(true)
     try {
-      // TODO: Call API hook here
-      console.log('Create event:', data)
+      await createEventMutation.mutateAsync({
+        name: data.name,
+        description: data.description,
+        isActive: data.isActive,
+        questions: data.questions.map((q, index) => ({
+          text: q.text,
+          type: q.type,
+          order: index + 1,
+        })),
+      })
       setCreateEventOpen(false)
-    } finally {
-      setIsLoading(false)
+    } catch (error) {
+      console.error('Failed to create event:', error)
     }
   }
 
   const handleUpdateSchoolSubmit = async (data: UpdateSchoolData) => {
-    setIsLoading(true)
     try {
-      // TODO: Call API hook here
-      console.log('Update school:', data)
+      await updateSchoolMutation.mutateAsync({
+        id: data.id,
+        payload: {
+          name: data.name,
+          address: data.address,
+        },
+      })
       setUpdateSchoolOpen(false)
       setSelectedSchool(null)
-    } finally {
-      setIsLoading(false)
+    } catch (error) {
+      console.error('Failed to update school:', error)
     }
   }
 
   const handleDeleteSchoolConfirm = async (data: DeleteSchoolData) => {
-    setIsLoading(true)
     try {
-      // TODO: Call API hook here
-      console.log('Delete school:', data)
+      await deleteSchoolMutation.mutateAsync(data.id)
       setDeleteSchoolOpen(false)
       setSelectedSchool(null)
-    } finally {
-      setIsLoading(false)
+    } catch (error) {
+      console.error('Failed to delete school:', error)
     }
   }
 
   const handleAddDirectorSubmit = async (data: CreateDirectorData) => {
-    setIsLoading(true)
     try {
-      // TODO: Call API hook here
-      console.log('Add director:', data)
+      await createDirectorMutation.mutateAsync({
+        email: data.email,
+        password: data.password,
+        name: data.name,
+        schoolId: data.schoolId,
+      })
       setAddDirectorOpen(false)
       setSelectedSchool(null)
-    } finally {
-      setIsLoading(false)
+    } catch (error) {
+      console.error('Failed to add director:', error)
     }
   }
 
@@ -133,14 +158,20 @@ export function AdminPanel() {
       />
 
       <main className="px-3 py-4">
-        <AdminSchoolList
-          schools={mockSchools}
-          onAddSchool={handleAddSchool}
-          onCreateEvent={handleCreateEvent}
-          onUpdateSchool={handleUpdateSchool}
-          onDeleteSchool={handleDeleteSchool}
-          onAddDirector={handleAddDirector}
-        />
+        {isLoadingSchools ? (
+          <div className="flex justify-center py-8">
+            <div className="text-gray-500">Loading schools...</div>
+          </div>
+        ) : (
+          <AdminSchoolList
+            schools={schools}
+            onAddSchool={handleAddSchool}
+            onCreateEvent={handleCreateEvent}
+            onUpdateSchool={handleUpdateSchool}
+            onDeleteSchool={handleDeleteSchool}
+            onAddDirector={handleAddDirector}
+          />
+        )}
       </main>
 
       {/* Modals */}
@@ -187,7 +218,7 @@ export function AdminPanel() {
           if (!open) setSelectedSchool(null)
         }}
         onSubmit={handleAddDirectorSubmit}
-        schools={mockSchools}
+        school={selectedSchool}
         isLoading={isLoading}
       />
     </div>

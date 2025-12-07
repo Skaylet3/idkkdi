@@ -4,7 +4,7 @@ import { SchoolList } from '@/widgets/school-list'
 import { DirectorEventList } from '@/widgets/director-event-list'
 import type { School } from '@/entities/school'
 import type { DirectorEvent } from '@/entities/director-event'
-import type { Teacher } from '@/entities/teacher'
+import { toTeacher, type Teacher } from '@/entities/teacher'
 import type { EventParticipant } from '@/entities/event-participant'
 import type { TeacherAnswer } from '@/entities/teacher-answer'
 import {
@@ -19,131 +19,51 @@ import {
   type UpdateTeacherData,
   type DeleteTeacherData,
 } from '@/features/director'
-
-const mockSchools: School[] = [
-  {
-    id: '1',
-    name: 'Lincoln High School',
-    teacherCount: 245,
-    studentCount: 2450,
-    iconColor: 'blue',
-  },
-  {
-    id: '2',
-    name: 'Washington Academy',
-    teacherCount: 180,
-    studentCount: 1800,
-    iconColor: 'purple',
-  },
-  {
-    id: '3',
-    name: 'Jefferson Elementary',
-    teacherCount: 95,
-    studentCount: 950,
-    iconColor: 'green',
-  },
-]
-
-const mockEvents: DirectorEvent[] = [
-  {
-    id: '1',
-    title: 'Professional Development Workshop',
-    date: 'March 15, 2024',
-    participantCount: 42,
-    status: 'completed',
-    iconType: 'clipboard',
-  },
-  {
-    id: '2',
-    title: 'Teaching Methods Survey',
-    date: 'March 10, 2024',
-    participantCount: 38,
-    status: 'completed',
-    iconType: 'document',
-  },
-  {
-    id: '3',
-    title: 'Student Engagement Assessment',
-    date: 'March 5, 2024',
-    participantCount: 51,
-    status: 'completed',
-    iconType: 'chart',
-  },
-]
-
-const mockTeachers: Teacher[] = [
-  {
-    id: '1',
-    name: 'Sarah Johnson',
-    email: 'sarah.johnson@school.com',
-    schoolId: '1',
-    schoolName: 'Lincoln High School',
-    subject: 'Math Teacher',
-  },
-  {
-    id: '2',
-    name: 'Michael Chen',
-    email: 'michael.chen@school.com',
-    schoolId: '1',
-    schoolName: 'Lincoln High School',
-    subject: 'Science Teacher',
-  },
-  {
-    id: '3',
-    name: 'Emily Rodriguez',
-    email: 'emily.rodriguez@school.com',
-    schoolId: '1',
-    schoolName: 'Lincoln High School',
-    subject: 'English Teacher',
-  },
-]
-
-const mockParticipants: EventParticipant[] = [
-  {
-    id: '1',
-    teacherId: '1',
-    teacherName: 'Sarah Johnson',
-    schoolName: 'Lincoln High School',
-    status: 'completed',
-  },
-  {
-    id: '2',
-    teacherId: '2',
-    teacherName: 'Michael Chen',
-    schoolName: 'Washington Academy',
-    status: 'completed',
-  },
-  {
-    id: '3',
-    teacherId: '3',
-    teacherName: 'Emily Rodriguez',
-    schoolName: 'Lincoln High School',
-    status: 'completed',
-  },
-]
-
-const mockAnswers: TeacherAnswer[] = [
-  {
-    id: '1',
-    questionId: '1',
-    questionText: 'How do you engage students in your classroom?',
-    answerText: 'I use interactive activities, group discussions, and real-world examples to keep students engaged and motivated throughout the lesson.',
-  },
-  {
-    id: '2',
-    questionId: '2',
-    questionText: 'What teaching methods do you find most effective?',
-    answerText: 'Blended learning combining traditional instruction with digital tools has proven most effective in my experience.',
-  },
-  {
-    id: '3',
-    questionId: '3',
-    questionText: 'How do you assess student progress?',
-    answerText: 'I use a combination of formative assessments, project-based evaluations, and regular feedback sessions to track student growth.',
-  },
-]
+import {
+  useTeachers,
+  useCreateTeacher,
+  useUpdateTeacher,
+  useDeleteTeacher,
+  useEvents,
+  useSchoolResults,
+  useTeacherHistory,
+} from '@/shared/api'
+import { useAuthStore } from '@/shared/auth'
 
 export function DirectorPanel() {
+  const { user } = useAuthStore()
+
+  // Fetch data from API
+  const { data: teachersData, isLoading: isLoadingTeachers } = useTeachers()
+  const { data: eventsData, isLoading: isLoadingEvents } = useEvents()
+
+  // Mutations
+  const createTeacherMutation = useCreateTeacher()
+  const updateTeacherMutation = useUpdateTeacher()
+  const deleteTeacherMutation = useDeleteTeacher()
+
+  // Transform API data to UI format
+  const teachers: Teacher[] = teachersData?.map((t) => toTeacher(t)) ?? []
+
+  // Transform events to DirectorEvent format
+  const events: DirectorEvent[] = eventsData?.map((e, index) => ({
+    id: e.id,
+    title: e.name,
+    date: new Date(e.createdAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
+    participantCount: 0, // Will be fetched separately when viewing event
+    status: e.isActive ? 'pending' : 'completed',
+    iconType: (['clipboard', 'document', 'chart'] as const)[index % 3],
+  })) ?? []
+
+  // Create a mock school from the director's assigned school
+  const directorSchool: School = {
+    id: user?.schoolId ?? '',
+    name: 'My School',
+    teacherCount: teachers.length,
+    studentCount: 0,
+    iconColor: 'blue',
+  }
+
   // Modal states
   const [addTeacherOpen, setAddTeacherOpen] = useState(false)
   const [teachersListOpen, setTeachersListOpen] = useState(false)
@@ -159,8 +79,39 @@ export function DirectorPanel() {
   const [selectedEvent, setSelectedEvent] = useState<DirectorEvent | null>(null)
   const [selectedParticipant, setSelectedParticipant] = useState<EventParticipant | null>(null)
 
-  // Loading states (for future API integration)
-  const [isLoading, setIsLoading] = useState(false)
+  // Fetch school results when an event is selected
+  const { data: schoolResultsData, isLoading: isLoadingResults } = useSchoolResults(
+    selectedEvent?.id ?? ''
+  )
+
+  // Fetch teacher history when a participant is selected
+  const { data: teacherHistoryData, isLoading: isLoadingHistory } = useTeacherHistory(
+    selectedParticipant?.teacherId ?? ''
+  )
+
+  // Transform school results to participants
+  const participants: EventParticipant[] = schoolResultsData?.teacherResults?.map((r) => ({
+    id: r.teacherId,
+    teacherId: r.teacherId,
+    teacherName: r.teacherName,
+    schoolName: 'My School',
+    status: r.answeredQuestionsCount > 0 ? 'completed' : 'pending',
+  })) ?? []
+
+  // Transform teacher history to answers
+  const teacherAnswers: TeacherAnswer[] = teacherHistoryData?.participationHistory
+    ?.find((h) => h.eventId === selectedEvent?.id)
+    ?.answers?.map((a, index) => ({
+      id: String(index),
+      questionId: a.questionId,
+      questionText: a.questionText,
+      answerText: a.answerText ?? a.selectedOption ?? '',
+    })) ?? []
+
+  // Combined loading state
+  const isLoading = createTeacherMutation.isPending ||
+    updateTeacherMutation.isPending ||
+    deleteTeacherMutation.isPending
 
   // School handlers
   const handleAddTeacher = (school: School) => {
@@ -203,39 +154,43 @@ export function DirectorPanel() {
     setTeacherAnswersOpen(true)
   }
 
-  // Form submission handlers (ready for API hooks)
+  // Form submission handlers
   const handleAddTeacherSubmit = async (data: CreateTeacherData) => {
-    setIsLoading(true)
     try {
-      // TODO: Call API hook here
-      console.log('Create teacher:', data)
+      await createTeacherMutation.mutateAsync({
+        name: data.name,
+        email: data.email,
+        password: data.password,
+      })
       setAddTeacherOpen(false)
-    } finally {
-      setIsLoading(false)
+    } catch (error) {
+      console.error('Failed to create teacher:', error)
     }
   }
 
   const handleUpdateTeacherSubmit = async (data: UpdateTeacherData) => {
-    setIsLoading(true)
     try {
-      // TODO: Call API hook here
-      console.log('Update teacher:', data)
+      await updateTeacherMutation.mutateAsync({
+        id: data.id,
+        payload: {
+          name: data.name,
+          email: data.email,
+        },
+      })
       setUpdateTeacherOpen(false)
       setSelectedTeacher(null)
-    } finally {
-      setIsLoading(false)
+    } catch (error) {
+      console.error('Failed to update teacher:', error)
     }
   }
 
   const handleDeleteTeacherConfirm = async (data: DeleteTeacherData) => {
-    setIsLoading(true)
     try {
-      // TODO: Call API hook here
-      console.log('Delete teacher:', data)
+      await deleteTeacherMutation.mutateAsync(data.id)
       setDeleteTeacherOpen(false)
       setSelectedTeacher(null)
-    } finally {
-      setIsLoading(false)
+    } catch (error) {
+      console.error('Failed to delete teacher:', error)
     }
   }
 
@@ -247,18 +202,30 @@ export function DirectorPanel() {
       />
 
       <main className="px-3 py-4 space-y-6">
-        <SchoolList
-          title="Schools"
-          schools={mockSchools}
-          onAddTeacher={handleAddTeacher}
-          onViewTeachers={handleViewTeachers}
-        />
+        {isLoadingTeachers ? (
+          <div className="flex justify-center py-8">
+            <div className="text-gray-500">Loading...</div>
+          </div>
+        ) : (
+          <SchoolList
+            title="Schools"
+            schools={[directorSchool]}
+            onAddTeacher={handleAddTeacher}
+            onViewTeachers={handleViewTeachers}
+          />
+        )}
 
-        <DirectorEventList
-          title="Recent Events"
-          events={mockEvents}
-          onEventClick={handleEventClick}
-        />
+        {isLoadingEvents ? (
+          <div className="flex justify-center py-8">
+            <div className="text-gray-500">Loading events...</div>
+          </div>
+        ) : (
+          <DirectorEventList
+            title="Recent Events"
+            events={events}
+            onEventClick={handleEventClick}
+          />
+        )}
       </main>
 
       {/* Level 1 Modals */}
@@ -275,18 +242,18 @@ export function DirectorPanel() {
         open={teachersListOpen}
         onOpenChange={setTeachersListOpen}
         schoolName={selectedSchool?.name || ''}
-        teachers={mockTeachers}
+        teachers={teachers}
         onTeacherClick={handleTeacherClick}
-        isLoading={isLoading}
+        isLoading={isLoadingTeachers}
       />
 
       <EventParticipantsModal
         open={eventParticipantsOpen}
         onOpenChange={setEventParticipantsOpen}
         eventName={selectedEvent?.title || ''}
-        participants={mockParticipants}
+        participants={participants}
         onParticipantClick={handleParticipantClick}
-        isLoading={isLoading}
+        isLoading={isLoadingResults}
       />
 
       {/* Level 2 Modals */}
@@ -306,8 +273,8 @@ export function DirectorPanel() {
           if (!open) setSelectedParticipant(null)
         }}
         teacherName={selectedParticipant?.teacherName}
-        answers={mockAnswers}
-        isLoading={isLoading}
+        answers={teacherAnswers}
+        isLoading={isLoadingHistory}
       />
 
       {/* Level 3 Modals */}

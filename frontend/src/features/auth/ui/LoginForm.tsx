@@ -1,14 +1,16 @@
 import { useState } from 'react'
 import { Button, Input, Checkbox, Label } from '@/shared/ui'
-import { Mail, Lock, Eye, EyeOff, LogIn } from 'lucide-react'
+import { Mail, Lock, Eye, EyeOff, LogIn, Loader2 } from 'lucide-react'
 
 interface LoginFormProps {
   onSubmit?: (data: { email: string; password: string; rememberMe: boolean }) => void
   onForgotPassword?: () => void
   onSignUp?: () => void
+  isLoading?: boolean
+  error?: string | null
 }
 
-export function LoginForm({ onSubmit, onForgotPassword, onSignUp }: LoginFormProps) {
+export function LoginForm({ onSubmit, onForgotPassword, onSignUp, isLoading, error }: LoginFormProps) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
@@ -80,12 +82,23 @@ export function LoginForm({ onSubmit, onForgotPassword, onSignUp }: LoginFormPro
         </button>
       </div>
 
+      {error && (
+        <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-red-600 text-sm">
+          {error}
+        </div>
+      )}
+
       <Button
         type="submit"
-        className="w-full h-12 rounded-xl bg-primary-500 hover:bg-primary-600 text-white font-semibold text-base gap-2"
+        disabled={isLoading}
+        className="w-full h-12 rounded-xl bg-primary-500 hover:bg-primary-600 text-white font-semibold text-base gap-2 disabled:opacity-50"
       >
-        <LogIn className="w-5 h-5" />
-        Sign In
+        {isLoading ? (
+          <Loader2 className="w-5 h-5 animate-spin" />
+        ) : (
+          <LogIn className="w-5 h-5" />
+        )}
+        {isLoading ? 'Signing In...' : 'Sign In'}
       </Button>
 
       <p className="text-center text-sm text-gray-600">

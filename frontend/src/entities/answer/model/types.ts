@@ -55,18 +55,8 @@ export interface AnswerWithQuestion extends Answer {
   }
 }
 
-export interface MyAnswersResponse {
-  eventId: string
-  eventName: string
-  answers: Array<{
-    questionId: string
-    questionText: string
-    questionType: string
-    answerText?: string
-    selectedOption?: MultipleChoiceOption
-    submittedAt: string
-  }>
-}
+// Backend returns raw Answer[] for /answers/my-answers/:eventId
+export type MyAnswersResponse = Answer[]
 
 export interface MyHistoryResponse {
   eventId: string

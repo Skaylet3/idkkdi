@@ -1,0 +1,6 @@
+export { authService } from './auth'
+export { schoolsService } from './schools'
+export { directorsService } from './directors'
+export { teachersService } from './teachers'
+export { eventsService } from './events'
+export { answersService } from './answers'

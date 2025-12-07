@@ -14,10 +14,16 @@ export interface DeleteSchoolData {
   name: string
 }
 
+export interface CreateEventQuestionData {
+  text: string
+  type: 'FREE_TEXT' | 'MULTIPLE_CHOICE'
+}
+
 export interface CreateEventData {
   name: string
   description?: string
   isActive: boolean
+  questions: CreateEventQuestionData[]
 }
 
 export interface CreateDirectorData {
